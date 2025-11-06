@@ -57,7 +57,7 @@ end
 
 
 function poidsM(poids::Dict{Tuple{Int,Int}, Tuple{Float64, Float64}}, people::Population;
-                alpha=0.7, beta=0.2, gamma=0.1)
+                alpha=0.3, beta=0.2, gamma=0.5)
 
     for ((i,j), (intensite,_)) in poids
         p1 = people[i]
