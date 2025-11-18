@@ -4,7 +4,7 @@ module Friendships
 using Random
 using LinearAlgebra: norm
 
-export Population, relationships!,similarity,poids0,poidsM,store,influence
+export Population, relationships!,similarity,poids0,poidsM,store,influence!
 
 
  

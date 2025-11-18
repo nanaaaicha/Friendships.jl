@@ -1,7 +1,7 @@
 mutable struct Person
     id::Int
-    values::Vector{Float64} 
-    emotions::Vector{Float64}
+    values::NamedTuple
+    emotions::NamedTuple
     friends::Vector{Int}
 end
 
@@ -9,9 +9,17 @@ const Population=Vector{Person}
 
 # Générer une population
 
+#function Population(n::Int)
+ #   [Person(i, rand(5), rand(3), Int[]) for i in 1:n]
+#end
+#je la change avec des tuples nommés
+x = NamedTuple{(:empathie, :loyauté, :générosité, :bonne_écoute, :tolérance)}(rand(5))
+y=NamedTuple{(:timidité, :politique, :jsp)}(rand(3))
+
 function Population(n::Int)
-    [Person(i, rand(5), rand(3), Int[]) for i in 1:n]
+    [Person(i, x, y, Int[]) for i in 1:n]
 end
+
 
 # Créer des amitiés
 
@@ -29,8 +37,13 @@ function relationships!(people::Population,prob::Float64=0.5)
 end
  
 function similarity(p1::Person, p2::Person)
-    return 1 - norm(p1.values - p2.values)/sqrt(length(p1.values))
+    v1 = collect(values(p1.values))
+    v2 = collect(values(p2.values))
+    return 1 - norm(v1 .- v2) / sqrt(length(v1))
+    #j'ai tout changé parce que jutilise NamedTuple
 end
+    #return 1 - norm(p1.values - p2.values)/sqrt(length(p1.values))
+
 
 function poids0(people::Population)
     poids = Dict{Tuple{Int,Int}, Tuple{Float64, Float64}}()  # (intensity,delta)
@@ -99,18 +112,27 @@ function influence!(p1::Person, p2::Person, poids::Dict{Tuple{Int,Int}, Tuple{Fl
 
     compat = similarity(p1, p2)
 
-    intensite = 0.5 * (mean(p1.emotions) + mean(p2.emotions))
-
+    #intensite = 0.5 * (mean(p1.emotions) + mean(p2.emotions))
+    intensite = 0.5 * (mean(values(p1.emotions)) + mean(values(p2.emotions)))
     epsilon = gamma * randn()
-
+ 
     delta = alpha * intensite + beta * compat + epsilon - intensite
-    
-    for i in 1:length(p1.emotions)
-        p1.emotions[i] = clamp(p1.emotions[i] + 0.5*delta, 0, 1)
-    end
-    for i in 1:length(p2.emotions)
-        p2.emotions[i] = clamp(p2.emotions[i] + 0.5*delta, 0, 1)
-    end
+    # mettre à jour en reconstruisant les NamedTuple
+    new1 = clamp.(collect(values(p1.emotions)) .+ 0.5*delta, 0, 1)
+    new2= clamp.(collect(values(p2.emotions)) .+ 0.5*delta, 0, 1)
+
+
+    keys1 = keys(p1.emotions)
+    keys2 = keys(p2.emotions)
+
+    p1.emotions = NamedTuple{keys1}(Tuple(new1))
+    p2.emotions = NamedTuple{keys2}(Tuple(new2))
+    #for i in 1:length(p1.emotions)
+    #    p1.emotions[i] = clamp(p1.emotions[i] + 0.5*delta, 0, 1)
+    #end
+    #for i in 1:length(p2.emotions)
+     #   p2.emotions[i] = clamp(p2.emotions[i] + 0.5*delta, 0, 1)
+    #end
 end
 
 
