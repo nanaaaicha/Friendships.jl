@@ -1,5 +1,3 @@
-
- 
 using Friendships     
 import Friendships: Population, Person, relationships!, similarity,poids0,poidsM,store, influence!
 
