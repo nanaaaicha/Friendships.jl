@@ -37,6 +37,15 @@ function relationships!(people::Population,prob::Float64=0.5)
     end
 end
  
+similarity(x, y) = error("similarity non définie pour $(typeof(x)) et $(typeof(y))")
+
+
+
+# similarité entre deux vecteurs 
+function similarity(v1::Vector{Float64}, v2::Vector{Float64})
+    1 - norm(v1 .- v2) / sqrt(length(v1))
+end
+#similarité entre deux personnes
 function similarity(p1::Person, p2::Person)
     #v1 = collect(values(p1.values))
     #v2 = collect(values(p2.values))
